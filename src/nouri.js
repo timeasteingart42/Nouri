@@ -1,702 +1,595 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
+const FONTS = `
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@300;400;500&display=swap');
+`;
+
 const CATEGORIES = [
-  { id: "all", label: "All", icon: "✦" },
-  { id: "breakfast", label: "Breakfast", icon: "☀" },
-  { id: "bowls", label: "Bowls", icon: "◐" },
-  { id: "mains", label: "Mains", icon: "◆" },
-  { id: "snacks", label: "Snacks", icon: "○" },
-  { id: "sweets", label: "Sweets", icon: "❋" },
+  { id: "all", label: "All", icon: "◎" },
+  { id: "morning", label: "Morning", icon: "○" },
+  { id: "bowls", label: "Bowls", icon: "◑" },
+  { id: "plates", label: "Plates", icon: "◐" },
+  { id: "bites", label: "Bites", icon: "◒" },
+  { id: "warm", label: "Warm + Cozy", icon: "◓" },
+  { id: "sweets", label: "Sweets", icon: "◔" },
+  { id: "drinks", label: "Drinks", icon: "◕" },
 ];
 
 const RECIPES = [
-  {
-    id: 1, title: "Avocado & Poached Eggs", cat: "breakfast", cal: 280, carbs: 3, fat: 22, protein: 14, time: "15m",
-    img: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&q=85",
-    ingredients: ["2 ripe avocados", "4 free-range eggs", "Flaky sea salt", "Fresh chives", "Red pepper flakes", "Extra virgin olive oil"],
-    steps: ["Halve avocados, remove pit, scoop slightly to widen.", "Poach eggs in simmering water with a splash of vinegar.", "Place eggs into avocado halves.", "Finish with olive oil, flaky salt, chives, and chili flakes."]
-  },
-  {
-    id: 2, title: "Butter Chicken with Cauliflower Rice", cat: "mains", cal: 420, carbs: 6, fat: 28, protein: 35, time: "35m",
-    img: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=800&q=85",
-    ingredients: ["500g chicken thighs", "1 cup heavy cream", "2 tbsp ghee", "Crushed tomatoes", "Garam masala, cumin, turmeric", "Garlic, ginger, cilantro"],
-    steps: ["Season chicken with spices, sear in ghee until golden.", "Add garlic and ginger, cook one minute.", "Pour in crushed tomatoes, simmer 15 minutes.", "Stir in cream, cook 5 more minutes. Serve over cauliflower rice."]
-  },
-  {
-    id: 3, title: "Salmon Poke Bowl", cat: "bowls", cal: 380, carbs: 5, fat: 24, protein: 32, time: "20m",
-    img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=85",
-    ingredients: ["300g sushi-grade salmon", "1 avocado, sliced", "Cucumber ribbons", "Sesame seeds", "Coconut aminos", "Cauliflower rice base"],
-    steps: ["Cube salmon, toss with coconut aminos and sesame oil.", "Prepare cauliflower rice base in bowls.", "Top with salmon, avocado, cucumber ribbons.", "Garnish with sesame seeds and microgreens."]
-  },
-  {
-    id: 4, title: "Everything Bagel Fat Bombs", cat: "snacks", cal: 140, carbs: 1, fat: 13, protein: 4, time: "10m",
-    img: "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=800&q=85",
-    ingredients: ["8 oz cream cheese", "2 tbsp salted butter", "Everything bagel seasoning", "Fresh chives"],
-    steps: ["Soften cream cheese and butter to room temperature.", "Mix together until completely smooth.", "Roll into 12 even balls.", "Roll each in everything bagel seasoning. Chill 30 minutes."]
-  },
-  {
-    id: 5, title: "Lemon Panna Cotta", cat: "sweets", cal: 180, carbs: 4, fat: 16, protein: 3, time: "25m",
-    img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800&q=85",
-    ingredients: ["2 cups heavy cream", "¼ cup monk fruit sweetener", "Zest of 2 Meyer lemons", "1 tsp vanilla bean paste", "2 tsp gelatin", "Fresh berries"],
-    steps: ["Bloom gelatin in cold water for 5 minutes.", "Heat cream with sweetener and lemon zest until simmering.", "Remove from heat, dissolve gelatin, add vanilla.", "Pour into ramekins. Chill 4 hours. Top with berries."]
-  },
-  {
-    id: 6, title: "Herb-Crusted Salmon & Asparagus", cat: "mains", cal: 390, carbs: 4, fat: 22, protein: 38, time: "25m",
-    img: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800&q=85",
-    ingredients: ["2 wild salmon fillets", "1 bunch asparagus, trimmed", "Fresh dill & parsley", "Lemon", "Garlic, olive oil", "Dijon mustard"],
-    steps: ["Brush salmon with Dijon, press on herb mixture.", "Arrange with asparagus on parchment-lined sheet.", "Drizzle everything with olive oil and lemon.", "Roast at 400°F for 15–18 minutes."]
-  },
-  {
-    id: 7, title: "Chia Coconut Pudding", cat: "breakfast", cal: 220, carbs: 5, fat: 14, protein: 8, time: "5m",
-    img: "https://images.unsplash.com/photo-1511690743698-d9d18f7e20f1?w=800&q=85",
-    ingredients: ["3 tbsp chia seeds", "1 cup full-fat coconut milk", "½ tsp vanilla bean paste", "Blueberries & raspberries", "Toasted coconut flakes", "Almond butter drizzle"],
-    steps: ["Whisk chia seeds with coconut milk and vanilla.", "Stir well, then again after 5 minutes to prevent clumps.", "Refrigerate overnight or at least 4 hours.", "Top with berries, coconut flakes, and almond butter."]
-  },
-  {
-    id: 8, title: "Coconut Crusted Shrimp", cat: "mains", cal: 360, carbs: 4, fat: 20, protein: 30, time: "20m",
-    img: "https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=800&q=85",
-    ingredients: ["1 lb wild shrimp, peeled", "1 cup unsweetened coconut flakes", "2 eggs, beaten", "½ cup almond flour", "Coconut oil", "Lime wedges"],
-    steps: ["Set up dredge: almond flour → egg → coconut flakes.", "Coat each shrimp through the three stations.", "Pan-fry in coconut oil 2–3 min per side until golden.", "Serve immediately with lime wedges."]
-  },
-  {
-    id: 9, title: "Green Goddess Bowl", cat: "bowls", cal: 310, carbs: 6, fat: 22, protein: 18, time: "15m",
-    img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=85",
-    ingredients: ["Mixed greens & arugula", "½ avocado, sliced", "Cucumber, hemp hearts", "Soft-boiled egg", "Tahini-lemon dressing", "Pumpkin seeds"],
-    steps: ["Arrange greens in a wide bowl.", "Top with avocado, cucumber, halved soft-boiled egg.", "Whisk tahini with lemon juice and water for dressing.", "Drizzle dressing, scatter hemp hearts and pumpkin seeds."]
-  },
-  {
-    id: 10, title: "Almond Flour Pancakes", cat: "breakfast", cal: 260, carbs: 4, fat: 18, protein: 12, time: "15m",
-    img: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800&q=85",
-    ingredients: ["1 cup fine almond flour", "2 large eggs", "2 tbsp cream cheese", "1 tsp baking powder", "Ceylon cinnamon", "Grass-fed butter"],
-    steps: ["Whisk almond flour, baking powder, and cinnamon.", "Beat in eggs and softened cream cheese until smooth.", "Cook in butter over medium heat, 2–3 min per side.", "Stack and top with butter and sugar-free maple syrup."]
-  },
-  {
-    id: 11, title: "Dark Chocolate Mousse", cat: "sweets", cal: 200, carbs: 5, fat: 18, protein: 4, time: "15m",
-    img: "https://images.unsplash.com/photo-1541783245831-57d6fb0926d3?w=800&q=85",
-    ingredients: ["200g dark chocolate (85%+)", "1 cup cold heavy cream", "2 tbsp erythritol", "1 tsp vanilla extract", "Flaky sea salt"],
-    steps: ["Melt chocolate gently in a double boiler, cool slightly.", "Whip cream with sweetener and vanilla to soft peaks.", "Fold melted chocolate into whipped cream in two additions.", "Spoon into glasses. Chill 2 hours. Finish with sea salt."]
-  },
-  {
-    id: 12, title: "Steak with Herb Butter", cat: "mains", cal: 480, carbs: 1, fat: 34, protein: 40, time: "20m",
-    img: "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=85",
-    ingredients: ["2 ribeye steaks, room temp", "3 tbsp compound herb butter", "Fresh rosemary & thyme", "4 garlic cloves", "Flaky salt & cracked pepper", "Avocado oil"],
-    steps: ["Season steaks generously, let rest 30 minutes.", "Sear in smoking-hot cast iron with avocado oil, 4 min/side.", "Add butter, garlic, and herbs — baste continuously.", "Rest 5 minutes. Slice against the grain."]
-  },
-  {
-    id: 13, title: "Cucumber Avocado Bites", cat: "snacks", cal: 120, carbs: 2, fat: 10, protein: 2, time: "10m",
-    img: "https://images.unsplash.com/photo-1604497181015-76590d828448?w=800&q=85",
-    ingredients: ["2 English cucumbers", "1 ripe avocado", "Fresh lemon juice", "Everything seasoning", "Maldon sea salt"],
-    steps: ["Slice cucumbers into thick rounds.", "Mash avocado with lemon and salt.", "Spoon onto each round.", "Top with everything seasoning. Serve immediately."]
-  },
-  {
-    id: 14, title: "Mediterranean Bowl", cat: "bowls", cal: 350, carbs: 6, fat: 24, protein: 22, time: "20m",
-    img: "https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=800&q=85",
-    ingredients: ["Grilled halloumi", "Cherry tomatoes, olives", "Cucumber, red onion", "Fresh mint & parsley", "Lemon-tahini dressing", "Za'atar seasoning"],
-    steps: ["Grill halloumi until golden on both sides.", "Arrange vegetables in a wide bowl.", "Top with halloumi slices.", "Drizzle with lemon-tahini, finish with za'atar."]
-  },
-  {
-    id: 15, title: "Jalapeño Bacon Poppers", cat: "snacks", cal: 160, carbs: 2, fat: 12, protein: 8, time: "25m",
-    img: "https://images.unsplash.com/photo-1504544750208-dc0358e63f7f?w=800&q=85",
-    ingredients: ["12 jalapeños", "8 oz cream cheese", "1 cup sharp cheddar", "6 slices thick-cut bacon", "Garlic powder", "Fresh chives"],
-    steps: ["Halve jalapeños, remove seeds and membranes.", "Mix cream cheese, cheddar, garlic powder, chives.", "Fill each half generously with cheese mixture.", "Wrap with bacon, bake at 400°F for 20 minutes."]
-  },
-  {
-    id: 16, title: "Berry Cheesecake Bites", cat: "sweets", cal: 150, carbs: 3, fat: 13, protein: 4, time: "20m",
-    img: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=85",
-    ingredients: ["8 oz cream cheese", "¼ cup powdered erythritol", "1 tsp vanilla bean paste", "Almond flour crust", "Fresh raspberries", "Lemon zest"],
-    steps: ["Press almond flour crust into mini muffin tin.", "Beat cream cheese with sweetener, vanilla, and lemon zest.", "Pipe filling into each crust.", "Top with fresh raspberry. Freeze 1 hour before serving."]
-  },
+  { id: 1, title: "Herb-Crusted Salmon", subtitle: "with lemon dill sauce", cat: "plates", time: "25 min", cal: 380, carbs: 3, protein: 42, fat: 22, img: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800&q=80", ingredients: ["Wild salmon fillet", "Fresh dill", "Lemon zest", "Dijon mustard", "Almond flour crust", "Capers"], steps: ["Pat salmon dry, season generously", "Press almond-herb crust onto flesh side", "Sear skin-side down 4 min", "Flip, finish in 400°F oven 8 min", "Rest 3 min, serve with lemon dill sauce"] },
+  { id: 2, title: "Golden Turmeric Latte", subtitle: "anti-inflammatory ritual", cat: "drinks", time: "5 min", cal: 120, carbs: 4, protein: 3, fat: 10, img: "https://images.unsplash.com/photo-1578020190125-f4f7c18bc9cb?w=800&q=80", ingredients: ["Oat milk", "Fresh turmeric", "Ceylon cinnamon", "Black pepper", "Coconut oil", "Raw honey"], steps: ["Warm milk gently — never boil", "Whisk in turmeric and spices", "Add coconut oil for richness", "Strain into your favourite mug", "Dust with cinnamon"] },
+  { id: 3, title: "Avocado Citrus Bowl", subtitle: "bright & nourishing", cat: "bowls", time: "15 min", cal: 420, carbs: 18, protein: 12, fat: 34, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80", ingredients: ["Ripe avocado", "Blood orange segments", "Toasted pepitas", "Microgreens", "Extra virgin olive oil", "Flaky sea salt"], steps: ["Halve and fan the avocado", "Segment blood oranges over the bowl", "Scatter pepitas and microgreens", "Drizzle your best olive oil", "Finish with flaky salt"] },
+  { id: 4, title: "Warm Seed Porridge", subtitle: "cozy morning bowl", cat: "morning", time: "10 min", cal: 310, carbs: 8, protein: 14, fat: 26, img: "https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=800&q=80", ingredients: ["Hemp hearts", "Chia seeds", "Flaxmeal", "Coconut cream", "Vanilla bean", "Toasted coconut flakes"], steps: ["Combine seeds with warm coconut cream", "Stir gently over low heat 5 min", "Scrape in vanilla bean seeds", "Pour into warmed bowl", "Crown with toasted coconut"] },
+  { id: 5, title: "Sesame Orange Chicken", subtitle: "weeknight favourite", cat: "plates", time: "30 min", cal: 450, carbs: 6, protein: 38, fat: 28, img: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&q=80", ingredients: ["Chicken thighs", "Fresh orange juice", "Tamari", "Sesame oil", "Ginger", "Toasted sesame seeds"], steps: ["Sear chicken thighs skin-down until golden", "Remove, build sauce in the same pan", "Reduce orange-tamari glaze by half", "Return chicken, coat in sauce", "Garnish with sesame and scallion"] },
+  { id: 6, title: "Chocolate Protein Shake", subtitle: "post-workout indulgence", cat: "drinks", time: "3 min", cal: 280, carbs: 6, protein: 30, fat: 16, img: "https://images.unsplash.com/photo-1553787499-6f9133860278?w=800&q=80", ingredients: ["Cacao powder", "Collagen peptides", "Almond butter", "Frozen cauliflower", "Almond milk", "Vanilla"], steps: ["Blend all ingredients until velvety", "Add ice for thickness if desired", "Pour into chilled glass", "Top with cacao nibs"] },
+  { id: 7, title: "Mediterranean Frittata", subtitle: "elegant brunch centrepiece", cat: "morning", time: "20 min", cal: 340, carbs: 5, protein: 24, fat: 26, img: "https://images.unsplash.com/photo-1510693206972-df098062cb71?w=800&q=80", ingredients: ["Pastured eggs", "Sun-dried tomatoes", "Kalamata olives", "Goat cheese", "Fresh basil", "Extra virgin olive oil"], steps: ["Whisk eggs with a splash of cream", "Sauté aromatics in olive oil", "Pour eggs, arrange toppings artfully", "Broil until just set and golden", "Slide onto board, scatter basil"] },
+  { id: 8, title: "Tuna Niçoise Bowl", subtitle: "French riviera in a bowl", cat: "bowls", time: "20 min", cal: 390, carbs: 10, protein: 36, fat: 24, img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80", ingredients: ["Seared ahi tuna", "Haricots verts", "Soft-boiled egg", "Niçoise olives", "Cherry tomatoes", "Anchovy vinaigrette"], steps: ["Blanch haricots verts until crisp-tender", "Sear tuna 90 seconds per side", "Arrange components in wide bowl", "Halve the soft-boiled egg", "Drizzle anchovy vinaigrette"] },
+  { id: 9, title: "Spicy Buffalo Bites", subtitle: "game day, elevated", cat: "bites", time: "25 min", cal: 260, carbs: 4, protein: 28, fat: 14, img: "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=800&q=80", ingredients: ["Chicken breast", "Frank's hot sauce", "Grass-fed butter", "Celery", "Blue cheese crumbles", "Ranch seasoning"], steps: ["Cut chicken into bite-sized pieces", "Toss with ranch seasoning, air fry 12 min", "Melt butter into hot sauce", "Coat bites in buffalo sauce", "Serve with celery and blue cheese"] },
+  { id: 10, title: "Smoked Salmon Pinwheels", subtitle: "effortless appetiser", cat: "bites", time: "10 min", cal: 180, carbs: 2, protein: 16, fat: 12, img: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80", ingredients: ["Wild smoked salmon", "Cream cheese", "Fresh dill", "Capers", "Lemon zest", "Everything bagel seasoning"], steps: ["Spread cream cheese on salmon slices", "Layer dill, capers, lemon zest", "Roll tightly, chill 15 min", "Slice into pinwheels", "Dust with everything seasoning"] },
+  { id: 11, title: "Bone Broth Ramen", subtitle: "deeply restorative", cat: "warm", time: "20 min", cal: 350, carbs: 8, protein: 30, fat: 22, img: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80", ingredients: ["Bone broth", "Shirataki noodles", "Soft-boiled egg", "Nori sheets", "Scallions", "Chili oil"], steps: ["Heat bone broth with ginger and garlic", "Prepare shirataki noodles per package", "Ladle broth over noodles", "Top with halved egg and nori", "Finish with scallion and chili oil"] },
+  { id: 12, title: "Dark Chocolate Mousse", subtitle: "three-ingredient magic", cat: "sweets", time: "15 min", cal: 220, carbs: 8, protein: 4, fat: 20, img: "https://images.unsplash.com/photo-1541783245831-57d6fb0926d3?w=800&q=80", ingredients: ["85% dark chocolate", "Coconut cream", "Vanilla extract", "Flaky sea salt", "Cacao nibs"], steps: ["Melt chocolate slowly over bain-marie", "Whip cold coconut cream to soft peaks", "Fold chocolate into cream gently", "Chill 2 hours minimum", "Serve with salt and cacao nibs"] },
+  { id: 13, title: "Green Goddess Bowl", subtitle: "the reset button", cat: "bowls", time: "15 min", cal: 380, carbs: 14, protein: 18, fat: 28, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80", ingredients: ["Massaged kale", "Avocado", "Cucumber", "Edamame", "Hemp hearts", "Green goddess dressing"], steps: ["Massage kale with lemon and salt", "Arrange all components in sections", "Scatter hemp hearts generously", "Drizzle green goddess dressing", "Eat slowly, feel incredible"] },
+  { id: 14, title: "Coconut Chia Pudding", subtitle: "make tonight, enjoy tomorrow", cat: "sweets", time: "5 min", cal: 260, carbs: 10, protein: 8, fat: 20, img: "https://images.unsplash.com/photo-1546548970-71785318a17b?w=800&q=80", ingredients: ["Chia seeds", "Full-fat coconut milk", "Vanilla bean paste", "Mango", "Toasted coconut", "Lime zest"], steps: ["Whisk chia into coconut milk", "Add vanilla, stir well", "Refrigerate overnight", "Top with mango and coconut", "Finish with lime zest"] },
+  { id: 15, title: "Chicken Noodle Soup", subtitle: "the healer", cat: "warm", time: "35 min", cal: 320, carbs: 6, protein: 34, fat: 18, img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80", ingredients: ["Whole chicken thighs", "Hearts of palm noodles", "Celery", "Carrots", "Fresh thyme", "Bay leaves"], steps: ["Sear chicken thighs until golden", "Build broth with aromatics", "Simmer 20 min until falling apart", "Shred chicken, add noodles", "Ladle generously, breathe in the steam"] },
+  { id: 16, title: "Matcha Coconut Latte", subtitle: "calm energy", cat: "drinks", time: "5 min", cal: 140, carbs: 3, protein: 2, fat: 12, img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=800&q=80", ingredients: ["Ceremonial matcha", "Coconut cream", "Oat milk", "Vanilla", "Raw honey"], steps: ["Sift matcha into warm bowl", "Whisk with small amount of hot water", "Froth coconut cream and oat milk", "Pour matcha over frothed milk", "Sweeten gently if desired"] },
 ];
 
-const HEIGHTS = [300, 350, 260, 320, 280, 360, 270, 310, 340, 290, 330, 250, 300, 280, 340, 320];
+const MOODS = [
+  { id: "tired", label: "I'm exhausted", emoji: "🌙", desc: "Easy, under 15 min" },
+  { id: "hosting", label: "I'm hosting", emoji: "✦", desc: "Show-stopping dishes" },
+  { id: "comfort", label: "I need comfort", emoji: "♨", desc: "Warm, soul-filling" },
+  { id: "quick", label: "I have 15 min", emoji: "↗", desc: "Fast & delicious" },
+  { id: "light", label: "Keep it light", emoji: "○", desc: "Fresh & bright" },
+];
+
+const easeOutExpo = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 export default function Nouri() {
+  const [view, setView] = useState("splash");
   const [cat, setCat] = useState("all");
-  const [saved, setSaved] = useState(new Set());
   const [selected, setSelected] = useState(null);
+  const [saved, setSaved] = useState(new Set());
   const [search, setSearch] = useState("");
-  const [loaded, setLoaded] = useState(false);
-  const [view, setView] = useState("discover");
-  const [imgReady, setImgReady] = useState({});
-  const [heartAnim, setHeartAnim] = useState(null);
-  const searchRef = useRef(null);
+  const [tab, setTab] = useState("home");
+  const [mounted, setMounted] = useState(false);
+  const [cardVisible, setCardVisible] = useState({});
+  const [modalPhase, setModalPhase] = useState("closed");
+  const [splashPhase, setSplashPhase] = useState(0);
+  const observer = useRef(null);
 
-  useEffect(() => { setTimeout(() => setLoaded(true), 80); }, []);
+  useEffect(() => {
+    if (view === "splash") {
+      setTimeout(() => setSplashPhase(1), 100);
+      setTimeout(() => setSplashPhase(2), 800);
+      setTimeout(() => setSplashPhase(3), 1600);
+      setTimeout(() => { setView("main"); setTimeout(() => setMounted(true), 50); }, 3200);
+    }
+  }, [view]);
 
-  const filtered = RECIPES.filter(r => {
-    if (view === "saved" && !saved.has(r.id)) return false;
-    if (cat !== "all" && r.cat !== cat) return false;
-    if (search && !r.title.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const cardRef = useCallback((node) => {
+    if (!node) return;
+    if (!observer.current) {
+      observer.current = new IntersectionObserver(
+        (entries) => entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setCardVisible((p) => ({ ...p, [e.target.dataset.id]: true }));
+            observer.current?.unobserve(e.target);
+          }
+        }),
+        { threshold: 0.1, rootMargin: "40px" }
+      );
+    }
+    observer.current.observe(node);
+  }, []);
+
+  const openRecipe = (r) => {
+    setSelected(r);
+    setModalPhase("entering");
+    requestAnimationFrame(() => setTimeout(() => setModalPhase("open"), 20));
+  };
+
+  const closeRecipe = () => {
+    setModalPhase("leaving");
+    setTimeout(() => { setModalPhase("closed"); setSelected(null); }, 500);
+  };
 
   const toggleSave = (id, e) => {
-    if (e) e.stopPropagation();
-    setHeartAnim(id);
-    setTimeout(() => setHeartAnim(null), 500);
-    setSaved(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    e?.stopPropagation();
+    setSaved((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
   };
 
-  const macroColor = (val, max) => {
-    const pct = Math.min(val / max, 1);
-    return `hsl(${140 - pct * 80}, 45%, 55%)`;
-  };
+  const filtered = RECIPES.filter((r) => {
+    const matchCat = cat === "all" || r.cat === cat;
+    const matchSearch = !search || r.title.toLowerCase().includes(search.toLowerCase()) || r.ingredients.some((i) => i.toLowerCase().includes(search.toLowerCase()));
+    const matchSaved = tab === "saved" ? saved.has(r.id) : true;
+    return matchCat && matchSearch && matchSaved;
+  });
+
+  if (view === "splash") {
+    return (
+      <>
+        <style>{FONTS}</style>
+        <div style={{
+          height: "100vh", width: "100vw", display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center", background: "#FAF9F6",
+          fontFamily: "'Cormorant Garamond', serif", overflow: "hidden", position: "relative",
+        }}>
+          {/* Subtle grain overlay */}
+          <div style={{
+            position: "absolute", inset: 0, opacity: 0.03,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          }} />
+          <div style={{
+            fontSize: "clamp(52px, 10vw, 88px)", fontWeight: 300, letterSpacing: "-0.03em",
+            color: "#1a1a18", opacity: splashPhase >= 1 ? 1 : 0,
+            transform: splashPhase >= 1 ? "translateY(0)" : "translateY(30px)",
+            transition: `all 0.9s ${easeOutExpo}`,
+          }}>
+            nouri<span style={{ color: "#C4A882" }}>.</span>
+          </div>
+          <div style={{
+            fontSize: "clamp(13px, 2vw, 16px)", fontFamily: "'Outfit', sans-serif", fontWeight: 300,
+            letterSpacing: "0.25em", textTransform: "uppercase", color: "#9B9489", marginTop: 16,
+            opacity: splashPhase >= 2 ? 1 : 0, transform: splashPhase >= 2 ? "translateY(0)" : "translateY(16px)",
+            transition: `all 0.8s ${easeOutExpo} 0.1s`,
+          }}>
+            Clean ingredients · whole foods · effortlessly good
+          </div>
+          <div style={{
+            width: 48, height: 1, background: "#C4A882", marginTop: 32,
+            opacity: splashPhase >= 3 ? 1 : 0, transform: splashPhase >= 3 ? "scaleX(1)" : "scaleX(0)",
+            transition: `all 0.6s ${easeOutExpo}`,
+          }} />
+        </div>
+      </>
+    );
+  }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#FAF9F6" }}>
-      <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
-      <style>{`
+    <>
+      <style>{FONTS}{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #FAF9F6; overflow-x: hidden; }
-        ::selection { background: #E8DFD0; }
+        body { background: #FAF9F6; }
         ::-webkit-scrollbar { width: 0; }
-
-        .n-shell { max-width: 1360px; margin: 0 auto; padding: 0 36px; }
-        @media (max-width: 768px) { .n-shell { padding: 0 16px; } }
-
-        /* ━━ NAV ━━ */
-        .n-nav {
-          position: sticky; top: 0; z-index: 50;
-          background: rgba(250,249,246,0.82);
-          backdrop-filter: blur(20px) saturate(1.4);
-          -webkit-backdrop-filter: blur(20px) saturate(1.4);
-          border-bottom: 1px solid rgba(0,0,0,0.04);
-          padding: 0 36px;
-        }
-        .n-nav-inner {
-          max-width: 1360px; margin: 0 auto;
-          display: flex; align-items: center; justify-content: space-between;
-          height: 64px;
-        }
-        .n-brand {
-          font-family: 'Fraunces', Georgia, serif;
-          font-size: 24px; font-weight: 500;
-          color: #1a1a18; letter-spacing: -0.5px;
-          cursor: default;
-        }
-        .n-brand span { color: #A8926A; }
-        .n-nav-actions { display: flex; align-items: center; gap: 6px; }
-        .n-nav-btn {
-          padding: 8px 18px; border-radius: 100px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 13px; font-weight: 500;
-          border: none; cursor: pointer;
-          transition: all 0.25s;
-          background: transparent; color: #888;
-          position: relative;
-        }
-        .n-nav-btn:hover { color: #555; }
-        .n-nav-btn.active { background: #1a1a18; color: #FAF9F6; }
-        .n-dot {
-          width: 7px; height: 7px; border-radius: 50%;
-          background: #C4956A; position: absolute;
-          top: 6px; right: 10px;
-          animation: dotPulse 2s ease infinite;
-        }
-        @keyframes dotPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-        /* ━━ HERO ━━ */
-        .n-hero { padding: 48px 0 8px; }
-        .n-title {
-          font-family: 'Fraunces', Georgia, serif;
-          font-size: 42px; font-weight: 400;
-          color: #1a1a18; letter-spacing: -1px;
-          line-height: 1.15; margin-bottom: 6px;
-        }
-        .n-title em { font-style: italic; color: #A8926A; font-weight: 300; }
-        .n-subtitle {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 15px; color: #aaa; font-weight: 300;
-          margin-bottom: 32px; letter-spacing: 0.2px;
-        }
-        @media (max-width: 768px) {
-          .n-title { font-size: 30px; }
-          .n-hero { padding: 32px 0 4px; }
-        }
-
-        /* ━━ SEARCH ━━ */
-        .n-search-wrap {
-          position: relative; max-width: 420px; margin-bottom: 28px;
-        }
-        .n-search-icon {
-          position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-          font-size: 15px; color: #ccc; pointer-events: none;
-        }
-        .n-search {
-          width: 100%; padding: 14px 18px 14px 42px;
-          border: 1.5px solid #ECEAE4;
-          border-radius: 16px; font-size: 14px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-weight: 400; background: #fff;
-          color: #1a1a18; outline: none;
-          transition: all 0.3s;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-        .n-search:focus {
-          border-color: #C4B798;
-          box-shadow: 0 0 0 4px rgba(196,183,152,0.12), 0 2px 8px rgba(0,0,0,0.04);
-        }
-        .n-search::placeholder { color: #d0ccc4; font-weight: 300; }
-
-        /* ━━ CATEGORIES ━━ */
-        .n-cats {
-          display: flex; gap: 8px; flex-wrap: wrap;
-          margin-bottom: 36px;
-          padding-bottom: 4px;
-        }
-        .n-cat-btn {
-          padding: 10px 22px; border-radius: 100px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 13px; font-weight: 400;
-          border: 1.5px solid #ECEAE4;
-          background: #fff; color: #999;
-          cursor: pointer; transition: all 0.3s;
-          display: flex; align-items: center; gap: 6px;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-        }
-        .n-cat-btn:hover {
-          border-color: #d4cfc4; color: #666;
-          transform: translateY(-1px);
-          box-shadow: 0 3px 8px rgba(0,0,0,0.04);
-        }
-        .n-cat-btn.active {
-          background: #1a1a18; border-color: #1a1a18;
-          color: #FAF9F6; font-weight: 500;
-          box-shadow: 0 2px 10px rgba(26,26,24,0.15);
-        }
-        .n-cat-icon { font-size: 11px; opacity: 0.7; }
-
-        /* ━━ GRID ━━ */
-        .n-grid {
-          columns: 4; column-gap: 20px;
-          padding-bottom: 100px;
-        }
-        @media (max-width: 1100px) { .n-grid { columns: 3; } }
-        @media (max-width: 768px) { .n-grid { columns: 2; column-gap: 12px; } }
-        @media (max-width: 440px) { .n-grid { columns: 2; column-gap: 10px; } }
-
-        /* ━━ CARD ━━ */
-        .n-card {
-          break-inside: avoid; margin-bottom: 20px;
-          border-radius: 20px; overflow: hidden;
-          background: #fff; cursor: pointer;
-          position: relative;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
-          transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
-          opacity: 0; transform: translateY(28px) scale(0.96);
-        }
-        .n-card.show { opacity: 1; transform: translateY(0) scale(1); }
-        .n-card:hover {
-          transform: translateY(-8px) scale(1.01) !important;
-          box-shadow: 0 20px 50px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
-        }
-        .n-card:hover .n-card-img { transform: scale(1.06); }
-        .n-card:hover .n-heart { opacity: 1; transform: scale(1); }
-        .n-card:hover .n-card-gradient { opacity: 1; }
-        .n-card.pop { animation: cardPop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
-        @keyframes cardPop {
-          0% { transform: scale(1); }
-          25% { transform: scale(0.95); }
-          50% { transform: scale(1.03); }
-          100% { transform: scale(1); }
-        }
-
-        .n-card-img-wrap {
-          width: 100%; overflow: hidden;
-          position: relative; background: #F0EDE6;
-        }
-        .n-card-img {
-          width: 100%; height: 100%; object-fit: cover;
-          display: block; transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.5s;
-        }
-        .n-card-gradient {
-          position: absolute; inset: 0;
-          background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.05) 40%, transparent 60%);
-          opacity: 0; transition: opacity 0.4s; pointer-events: none;
-        }
-        .n-heart {
-          position: absolute; top: 12px; right: 12px;
-          width: 38px; height: 38px; border-radius: 50%;
-          background: rgba(255,255,255,0.92);
-          backdrop-filter: blur(12px);
-          border: none; cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 17px; z-index: 3;
-          opacity: 0; transform: scale(0.7);
-          transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-          box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-          color: #999;
-        }
-        .n-heart.is-saved {
-          opacity: 1; transform: scale(1);
-          background: #1a1a18; color: #FAF9F6;
-        }
-        .n-heart:hover { transform: scale(1.1) !important; }
-        .n-card-time {
-          position: absolute; bottom: 12px; left: 12px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 11px; font-weight: 500;
-          color: #fff; padding: 5px 12px;
-          background: rgba(0,0,0,0.45);
-          backdrop-filter: blur(8px);
-          border-radius: 100px;
-          opacity: 0; transition: opacity 0.3s;
-          letter-spacing: 0.5px;
-        }
-        .n-card:hover .n-card-time { opacity: 1; }
-
-        .n-card-body { padding: 16px 18px 18px; }
-        .n-card-title {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 14px; font-weight: 600;
-          color: #1a1a18; line-height: 1.35;
-          margin-bottom: 10px; letter-spacing: -0.2px;
-        }
-        .n-card-macros {
-          display: flex; align-items: center; gap: 6px;
-          flex-wrap: wrap;
-        }
-        .n-macro-pill {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 11px; font-weight: 500;
-          padding: 4px 10px; border-radius: 8px;
-          background: #F5F3EE; color: #8a8578;
-          letter-spacing: 0.2px;
-        }
-        .n-macro-pill.carbs {
-          background: #E8F5E4; color: #5a8a50;
-        }
-
-        /* ━━ MODAL ━━ */
-        .n-overlay {
-          position: fixed; inset: 0; z-index: 200;
-          background: rgba(26,26,24,0.25);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          display: flex; align-items: flex-end; justify-content: center;
-          padding: 0;
-          animation: fadeIn 0.2s ease;
-        }
-        @media (min-width: 640px) {
-          .n-overlay { align-items: center; padding: 24px; }
-        }
-        .n-modal {
-          background: #fff; width: 100%;
-          max-width: 520px; max-height: 92vh;
-          overflow-y: auto; overflow-x: hidden;
-          border-radius: 28px 28px 0 0;
-          animation: modalSlide 0.4s cubic-bezier(0.34,1.56,0.64,1);
-          box-shadow: 0 -4px 40px rgba(0,0,0,0.08);
-        }
-        @media (min-width: 640px) {
-          .n-modal { border-radius: 28px; animation-name: modalPop; }
-        }
-        .n-modal::-webkit-scrollbar { width: 0; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes modalSlide { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes modalPop { from { opacity: 0; transform: scale(0.92) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-
-        .n-modal-img-wrap {
-          width: 100%; height: 280px;
-          overflow: hidden; position: relative;
-        }
-        .n-modal-img { width: 100%; height: 100%; object-fit: cover; }
-        .n-modal-close {
-          position: absolute; top: 16px; right: 16px;
-          width: 40px; height: 40px; border-radius: 50%;
-          background: rgba(255,255,255,0.9);
-          backdrop-filter: blur(12px);
-          border: none; cursor: pointer;
-          font-size: 18px; color: #555;
-          display: flex; align-items: center; justify-content: center;
-          transition: all 0.2s;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .n-modal-close:hover { transform: scale(1.1); background: #fff; }
-        .n-modal-badge {
-          position: absolute; bottom: 16px; left: 20px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 11px; font-weight: 600;
-          text-transform: uppercase; letter-spacing: 2px;
-          color: #fff; padding: 6px 14px;
-          background: rgba(0,0,0,0.4);
-          backdrop-filter: blur(8px);
-          border-radius: 10px;
-        }
-
-        .n-modal-body { padding: 28px 28px 36px; }
-        .n-modal-title {
-          font-family: 'Fraunces', Georgia, serif;
-          font-size: 28px; font-weight: 400;
-          color: #1a1a18; line-height: 1.2;
-          margin-bottom: 24px; letter-spacing: -0.5px;
-        }
-
-        .n-macro-grid {
-          display: grid; grid-template-columns: repeat(4, 1fr);
-          gap: 10px; margin-bottom: 32px;
-        }
-        .n-macro-box {
-          text-align: center; padding: 16px 8px;
-          background: #FAF9F6; border-radius: 16px;
-          position: relative; overflow: hidden;
-        }
-        .n-macro-box::after {
-          content: ''; position: absolute;
-          bottom: 0; left: 10%; right: 10%; height: 3px;
-          border-radius: 2px;
-        }
-        .n-macro-val {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 20px; font-weight: 700;
-          color: #1a1a18;
-        }
-        .n-macro-lbl {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 10px; color: #b0ab9f;
-          text-transform: uppercase; letter-spacing: 1.2px;
-          margin-top: 3px;
-        }
-
-        .n-section-label {
-          font-family: 'Fraunces', Georgia, serif;
-          font-size: 18px; font-weight: 400;
-          color: #1a1a18; margin-bottom: 14px;
-        }
-        .n-ingredient-list { margin-bottom: 28px; }
-        .n-ingredient {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 14px; color: #666; font-weight: 400;
-          padding: 10px 0;
-          border-bottom: 1px solid #F5F3EE;
-          display: flex; align-items: center; gap: 12px;
-        }
-        .n-ingredient:last-child { border: none; }
-        .n-ing-dot {
-          width: 6px; height: 6px; border-radius: 50%;
-          background: #C4B798; flex-shrink: 0;
-        }
-
-        .n-step-list { margin-top: 0; }
-        .n-step {
-          display: flex; gap: 16px;
-          padding: 10px 0;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 14px; color: #555;
-          font-weight: 400; line-height: 1.65;
-        }
-        .n-step-num {
-          width: 28px; height: 28px; border-radius: 10px;
-          background: #FAF9F6;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 12px; font-weight: 700; color: #aaa;
-          flex-shrink: 0; margin-top: 1px;
-        }
-
-        .n-modal-save-btn {
-          width: 100%; padding: 17px; border: none;
-          border-radius: 16px; font-size: 15px;
-          font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif;
-          cursor: pointer; transition: all 0.3s;
-          margin-top: 28px; letter-spacing: 0.3px;
-        }
-        .n-modal-save-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(26,26,24,0.12); }
-
-        /* ━━ EMPTY ━━ */
-        .n-empty {
-          text-align: center; padding: 100px 20px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .n-empty-icon { font-size: 44px; margin-bottom: 16px; opacity: 0.5; display: block; }
-        .n-empty-title { font-size: 16px; color: #999; font-weight: 500; margin-bottom: 6px; }
-        .n-empty-sub { font-size: 13px; color: #ccc; font-weight: 300; }
-
-        /* ━━ FOOTER ━━ */
-        .n-footer {
-          text-align: center; padding: 0 20px 40px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 12px; color: #ddd; font-weight: 300;
-          letter-spacing: 1px;
-        }
-
-        @media (max-width: 768px) {
-          .n-nav { padding: 0 16px; }
-          .n-card-body { padding: 12px 14px 14px; }
-          .n-card-title { font-size: 13px; }
-          .n-modal-body { padding: 24px 20px 32px; }
-          .n-modal-title { font-size: 24px; }
-        }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        @keyframes modalIn { from { opacity:0; transform: translateY(100%); } to { opacity:1; transform: translateY(0); } }
+        @keyframes modalOut { from { opacity:1; transform: translateY(0); } to { opacity:0; transform: translateY(100%); } }
+        @keyframes backdropIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes backdropOut { from { opacity:1; } to { opacity:0; } }
+        @keyframes gentlePulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+        input::placeholder { color: #C4BFB6; }
       `}</style>
 
-      {/* ━━ STICKY NAV ━━ */}
-      <nav className="n-nav">
-        <div className="n-nav-inner">
-          <div className="n-brand">nouri<span>.</span></div>
-          <div className="n-nav-actions">
-            <button className={`n-nav-btn ${view === "discover" ? "active" : ""}`} onClick={() => setView("discover")}>
-              Discover
-            </button>
-            <button className={`n-nav-btn ${view === "saved" ? "active" : ""}`} onClick={() => setView("saved")}>
-              Saved
-              {saved.size > 0 && <span className="n-dot" />}
-            </button>
-          </div>
-        </div>
-      </nav>
+      <div style={{
+        minHeight: "100vh", background: "#FAF9F6", fontFamily: "'Outfit', sans-serif",
+        color: "#1a1a18", position: "relative", maxWidth: 480, margin: "0 auto",
+        borderLeft: "1px solid #F0EDE8", borderRight: "1px solid #F0EDE8",
+      }}>
+        {/* Grain texture */}
+        <div style={{
+          position: "fixed", inset: 0, opacity: 0.025, pointerEvents: "none", zIndex: 9999,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        }} />
 
-      <div className="n-shell">
-        {/* ━━ HERO ━━ */}
-        <div className="n-hero">
-          <h1 className="n-title">
-            {view === "saved" ? <>Your <em>collection</em></> : <>Keto <em>recipes</em></>}
-          </h1>
-          <p className="n-subtitle">
-            {view === "saved"
-              ? `${saved.size} recipe${saved.size !== 1 ? "s" : ""} saved`
-              : "Clean eating, beautiful food, zero compromise"
-            }
-          </p>
-        </div>
-
-        {/* ━━ SEARCH ━━ */}
-        <div className="n-search-wrap">
-          <span className="n-search-icon">⌕</span>
-          <input
-            ref={searchRef}
-            className="n-search"
-            placeholder="Search recipes..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
-
-        {/* ━━ CATEGORIES ━━ */}
-        <div className="n-cats">
-          {CATEGORIES.map(c => (
-            <button
-              key={c.id}
-              className={`n-cat-btn ${cat === c.id ? "active" : ""}`}
-              onClick={() => setCat(c.id)}
-            >
-              <span className="n-cat-icon">{c.icon}</span>
-              {c.label}
-            </button>
-          ))}
-        </div>
-
-        {/* ━━ GRID ━━ */}
-        <div className="n-grid">
-          {filtered.length === 0 ? (
-            <div className="n-empty">
-              <span className="n-empty-icon">{view === "saved" ? "♡" : "✦"}</span>
-              <div className="n-empty-title">{view === "saved" ? "No saved recipes yet" : "No recipes found"}</div>
-              <div className="n-empty-sub">{view === "saved" ? "Tap the heart to start your collection" : "Try a different search or category"}</div>
+        {/* HEADER */}
+        <header style={{
+          position: "sticky", top: 0, zIndex: 100, padding: "20px 24px 16px",
+          background: "rgba(250,249,246,0.85)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(0,0,0,0.04)",
+          opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(-10px)",
+          transition: `all 0.6s ${easeOutExpo}`,
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{
+              fontFamily: "'Cormorant Garamond', serif", fontSize: 32, fontWeight: 300,
+              letterSpacing: "-0.03em", cursor: "pointer",
+            }} onClick={() => { setTab("home"); setCat("all"); setSearch(""); }}>
+              nouri<span style={{ color: "#C4A882" }}>.</span>
             </div>
-          ) : (
-            filtered.map((r, i) => (
-              <div
-                key={r.id}
-                className={`n-card ${loaded ? "show" : ""} ${heartAnim === r.id ? "pop" : ""}`}
-                style={{ transitionDelay: `${i * 45}ms` }}
-                onClick={() => setSelected(r)}
-              >
-                <div className="n-card-img-wrap" style={{ height: HEIGHTS[r.id - 1] || 300 }}>
-                  <img
-                    className="n-card-img"
-                    src={r.img}
-                    alt={r.title}
-                    loading="lazy"
-                    style={{ opacity: imgReady[r.id] ? 1 : 0 }}
-                    onLoad={() => setImgReady(p => ({ ...p, [r.id]: true }))}
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              {["home", "mood", "saved"].map((t) => (
+                <button key={t} onClick={() => { setTab(t); setCat("all"); }} style={{
+                  background: tab === t ? "#1a1a18" : "transparent",
+                  color: tab === t ? "#FAF9F6" : "#9B9489",
+                  border: tab === t ? "none" : "1px solid #E8E4DD",
+                  borderRadius: 100, padding: "8px 18px", fontSize: 13, fontWeight: 400,
+                  fontFamily: "'Outfit', sans-serif", cursor: "pointer", letterSpacing: "0.02em",
+                  transition: `all 0.4s ${easeOutExpo}`,
+                }}>
+                  {t === "home" ? "Discover" : t === "mood" ? "By Mood" : "Saved"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {tab === "home" && (
+            <div style={{
+              marginTop: 16, position: "relative",
+              opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(8px)",
+              transition: `all 0.6s ${easeOutExpo} 0.1s`,
+            }}>
+              <input
+                value={search} onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search recipes or ingredients..."
+                style={{
+                  width: "100%", padding: "14px 20px", paddingLeft: 44, background: "#F4F1EC",
+                  border: "none", borderRadius: 14, fontSize: 14, fontFamily: "'Outfit', sans-serif",
+                  color: "#1a1a18", outline: "none", transition: "all 0.3s ease",
+                }}
+                onFocus={(e) => e.target.style.background = "#EFEBE4"}
+                onBlur={(e) => e.target.style.background = "#F4F1EC"}
+              />
+              <span style={{
+                position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)",
+                fontSize: 16, color: "#9B9489",
+              }}>⌕</span>
+            </div>
+          )}
+        </header>
+
+        {/* CATEGORIES */}
+        {tab === "home" && (
+          <div style={{
+            display: "flex", gap: 8, padding: "16px 24px", overflowX: "auto",
+            opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(12px)",
+            transition: `all 0.6s ${easeOutExpo} 0.15s`,
+          }}>
+            {CATEGORIES.map((c) => (
+              <button key={c.id} onClick={() => setCat(c.id)} style={{
+                whiteSpace: "nowrap", padding: "10px 20px", borderRadius: 100,
+                border: cat === c.id ? "1.5px solid #1a1a18" : "1px solid #E8E4DD",
+                background: cat === c.id ? "#1a1a18" : "transparent",
+                color: cat === c.id ? "#FAF9F6" : "#6B665E",
+                fontSize: 13, fontFamily: "'Outfit', sans-serif", fontWeight: 400,
+                cursor: "pointer", transition: `all 0.35s ${easeOutExpo}`,
+                letterSpacing: "0.01em", flexShrink: 0,
+              }}>
+                <span style={{ marginRight: 6, opacity: 0.6 }}>{c.icon}</span>{c.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* MOOD VIEW */}
+        {tab === "mood" && (
+          <div style={{ padding: "40px 24px" }}>
+            <h2 style={{
+              fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 300,
+              lineHeight: 1.15, marginBottom: 8, letterSpacing: "-0.02em",
+              animation: `fadeUp 0.7s ${easeOutExpo} both`,
+            }}>
+              How are you<br />feeling tonight?
+            </h2>
+            <p style={{
+              color: "#9B9489", fontSize: 14, marginBottom: 36, fontWeight: 300,
+              animation: `fadeUp 0.7s ${easeOutExpo} 0.1s both`,
+            }}>
+              We'll match you with exactly what you need.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {MOODS.map((m, i) => (
+                <button key={m.id} onClick={() => { setTab("home"); setCat("all"); setSearch(m.id === "tired" || m.id === "quick" ? "5 min" : m.id === "comfort" || m.id === "hosting" ? "" : ""); }} style={{
+                  display: "flex", alignItems: "center", gap: 20, padding: "22px 24px",
+                  background: "#FFFFFF", border: "1px solid #F0EDE8", borderRadius: 18,
+                  cursor: "pointer", transition: `all 0.4s ${easeOutExpo}`,
+                  fontFamily: "'Outfit', sans-serif", textAlign: "left",
+                  animation: `fadeUp 0.6s ${easeOutExpo} ${0.15 + i * 0.08}s both`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateX(8px)";
+                  e.currentTarget.style.borderColor = "#C4A882";
+                  e.currentTarget.style.boxShadow = "0 8px 32px rgba(196,168,130,0.12)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateX(0)";
+                  e.currentTarget.style.borderColor = "#F0EDE8";
+                  e.currentTarget.style.boxShadow = "none";
+                }}>
+                  <span style={{
+                    fontSize: 24, width: 48, height: 48, display: "flex", alignItems: "center",
+                    justifyContent: "center", background: "#FAF9F6", borderRadius: 14,
+                    flexShrink: 0,
+                  }}>{m.emoji}</span>
+                  <div>
+                    <div style={{ fontSize: 16, fontWeight: 400, color: "#1a1a18" }}>{m.label}</div>
+                    <div style={{ fontSize: 13, color: "#9B9489", fontWeight: 300, marginTop: 2 }}>{m.desc}</div>
+                  </div>
+                  <span style={{ marginLeft: "auto", color: "#C4A882", fontSize: 18 }}>→</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* SAVED EMPTY STATE */}
+        {tab === "saved" && filtered.length === 0 && (
+          <div style={{
+            padding: "80px 24px", textAlign: "center",
+            animation: `fadeUp 0.7s ${easeOutExpo} both`,
+          }}>
+            <div style={{
+              width: 80, height: 80, borderRadius: "50%", background: "#F4F1EC",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              margin: "0 auto 24px", fontSize: 32,
+            }}>♡</div>
+            <h3 style={{
+              fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300,
+              marginBottom: 8,
+            }}>Your collection is empty</h3>
+            <p style={{ color: "#9B9489", fontSize: 14, fontWeight: 300 }}>
+              Save recipes you love and find them here.
+            </p>
+          </div>
+        )}
+
+        {/* EDITORIAL HERO — only on home with "all" */}
+        {tab === "home" && cat === "all" && !search && (
+          <div style={{
+            margin: "8px 24px 24px", borderRadius: 22, overflow: "hidden",
+            position: "relative", height: 220, cursor: "pointer",
+            opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(16px)",
+            transition: `all 0.8s ${easeOutExpo} 0.2s`,
+          }} onClick={() => openRecipe(RECIPES[0])}>
+            <img src={RECIPES[0].img} alt="" style={{
+              width: "100%", height: "100%", objectFit: "cover",
+              transition: `transform 0.8s ${easeOutExpo}`,
+            }}
+            onMouseEnter={(e) => e.target.style.transform = "scale(1.04)"}
+            onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
+            />
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(0deg, rgba(26,26,24,0.7) 0%, rgba(26,26,24,0) 60%)",
+            }} />
+            <div style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
+              <div style={{
+                fontSize: 11, fontFamily: "'Outfit', sans-serif", letterSpacing: "0.2em",
+                textTransform: "uppercase", color: "#C4A882", fontWeight: 400, marginBottom: 8,
+              }}>
+                Editor's Pick
+              </div>
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300,
+                color: "#FAF9F6", lineHeight: 1.15,
+              }}>
+                {RECIPES[0].title}
+              </div>
+              <div style={{ color: "rgba(250,249,246,0.6)", fontSize: 13, marginTop: 4, fontWeight: 300 }}>
+                {RECIPES[0].subtitle}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SECTION TITLE */}
+        {tab === "home" && (
+          <div style={{
+            padding: "0 24px 16px", display: "flex", justifyContent: "space-between", alignItems: "baseline",
+            opacity: mounted ? 1 : 0, transition: `all 0.6s ${easeOutExpo} 0.25s`,
+          }}>
+            <h2 style={{
+              fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 300,
+              letterSpacing: "-0.01em",
+            }}>
+              {cat === "all" ? "All Recipes" : CATEGORIES.find((c) => c.id === cat)?.label}
+            </h2>
+            <span style={{ fontSize: 13, color: "#9B9489", fontWeight: 300 }}>
+              {filtered.length} {filtered.length === 1 ? "recipe" : "recipes"}
+            </span>
+          </div>
+        )}
+
+        {tab === "saved" && filtered.length > 0 && (
+          <div style={{ padding: "32px 24px 16px" }}>
+            <h2 style={{
+              fontFamily: "'Cormorant Garamond', serif", fontSize: 30, fontWeight: 300,
+              animation: `fadeUp 0.6s ${easeOutExpo} both`,
+            }}>Your Collection</h2>
+          </div>
+        )}
+
+        {/* RECIPE GRID */}
+        {(tab === "home" || (tab === "saved" && filtered.length > 0)) && (
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16,
+            padding: "0 24px 120px",
+          }}>
+            {filtered.map((r, i) => (
+              <div key={r.id} ref={cardRef} data-id={r.id} onClick={() => openRecipe(r)} style={{
+                cursor: "pointer", borderRadius: 18, overflow: "hidden",
+                background: "#FFFFFF", border: "1px solid #F0EDE8",
+                opacity: cardVisible[r.id] ? 1 : 0,
+                transform: cardVisible[r.id] ? "translateY(0)" : "translateY(20px)",
+                transition: `all 0.6s ${easeOutExpo} ${(i % 4) * 0.06}s`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.boxShadow = "0 16px 48px rgba(26,26,24,0.08)";
+                e.currentTarget.style.borderColor = "#E0DBD3";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+                e.currentTarget.style.borderColor = "#F0EDE8";
+              }}>
+                <div style={{ position: "relative", paddingTop: "110%", overflow: "hidden" }}>
+                  <img src={r.img} alt={r.title} loading="lazy" style={{
+                    position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
+                    transition: `transform 0.7s ${easeOutExpo}`,
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = "scale(1.06)"}
+                  onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
                   />
-                  <div className="n-card-gradient" />
-                  <button
-                    className={`n-heart ${saved.has(r.id) ? "is-saved" : ""}`}
-                    onClick={e => toggleSave(r.id, e)}
-                    aria-label="Save recipe"
-                  >
+                  {/* Save button */}
+                  <button onClick={(e) => toggleSave(r.id, e)} style={{
+                    position: "absolute", top: 10, right: 10, width: 36, height: 36,
+                    borderRadius: "50%", border: "none", cursor: "pointer",
+                    background: saved.has(r.id) ? "#1a1a18" : "rgba(250,249,246,0.85)",
+                    backdropFilter: "blur(8px)", color: saved.has(r.id) ? "#C4A882" : "#9B9489",
+                    fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: `all 0.3s ${easeOutExpo}`,
+                  }}>
                     {saved.has(r.id) ? "♥" : "♡"}
                   </button>
-                  <div className="n-card-time">{r.time}</div>
-                </div>
-                <div className="n-card-body">
-                  <div className="n-card-title">{r.title}</div>
-                  <div className="n-card-macros">
-                    <span className="n-macro-pill carbs">{r.carbs}g carbs</span>
-                    <span className="n-macro-pill">{r.cal} cal</span>
+                  {/* Time badge */}
+                  <div style={{
+                    position: "absolute", bottom: 10, left: 10,
+                    background: "rgba(250,249,246,0.9)", backdropFilter: "blur(8px)",
+                    borderRadius: 100, padding: "5px 12px", fontSize: 11, fontWeight: 400,
+                    color: "#6B665E", letterSpacing: "0.02em",
+                  }}>
+                    {r.time}
                   </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {filtered.length > 0 && <div className="n-footer">NOURI · EAT WELL · FEEL GOOD</div>}
-      </div>
-
-      {/* ━━ DETAIL MODAL ━━ */}
-      {selected && (
-        <div className="n-overlay" onClick={() => setSelected(null)}>
-          <div className="n-modal" onClick={e => e.stopPropagation()}>
-            <div className="n-modal-img-wrap">
-              <img className="n-modal-img" src={selected.img} alt={selected.title} />
-              <button className="n-modal-close" onClick={() => setSelected(null)}>✕</button>
-              <div className="n-modal-badge">{selected.cat}</div>
-            </div>
-
-            <div className="n-modal-body">
-              <h2 className="n-modal-title">{selected.title}</h2>
-
-              <div className="n-macro-grid">
-                {[
-                  { val: selected.cal, label: "Cal", color: "#E8E4D8" },
-                  { val: `${selected.carbs}g`, label: "Carbs", color: "#E0EED8" },
-                  { val: `${selected.fat}g`, label: "Fat", color: "#F0E8D8" },
-                  { val: `${selected.protein}g`, label: "Protein", color: "#D8E4EE" },
-                ].map((m, i) => (
-                  <div key={i} className="n-macro-box" style={{ "--bar-color": m.color }}>
-                    <div className="n-macro-val">{m.val}</div>
-                    <div className="n-macro-lbl">{m.label}</div>
+                <div style={{ padding: "14px 16px 16px" }}>
+                  <div style={{
+                    fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 400,
+                    lineHeight: 1.25, marginBottom: 4, letterSpacing: "-0.01em",
+                  }}>
+                    {r.title}
                   </div>
-                ))}
-              </div>
-
-              <div className="n-section-label">Ingredients</div>
-              <div className="n-ingredient-list">
-                {selected.ingredients.map((ing, i) => (
-                  <div key={i} className="n-ingredient">
-                    <span className="n-ing-dot" />
-                    {ing}
+                  <div style={{ fontSize: 12, color: "#9B9489", fontWeight: 300, marginBottom: 10 }}>
+                    {r.subtitle}
                   </div>
-                ))}
-              </div>
-
-              <div className="n-section-label">Method</div>
-              <div className="n-step-list">
-                {selected.steps.map((s, i) => (
-                  <div key={i} className="n-step">
-                    <span className="n-step-num">{i + 1}</span>
-                    <span>{s}</span>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <span style={{
+                      padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 400,
+                      background: "#F4F1EC", color: "#6B665E",
+                    }}>{r.carbs}g carbs</span>
+                    <span style={{
+                      padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 400,
+                      background: "#F4F1EC", color: "#6B665E",
+                    }}>{r.protein}g protein</span>
                   </div>
-                ))}
+                </div>
               </div>
-
-              <button
-                className="n-modal-save-btn"
-                style={{
-                  background: saved.has(selected.id) ? "#FAF9F6" : "#1a1a18",
-                  color: saved.has(selected.id) ? "#1a1a18" : "#FAF9F6",
-                  border: saved.has(selected.id) ? "1.5px solid #ECEAE4" : "none",
-                }}
-                onClick={e => toggleSave(selected.id, e)}
-              >
-                {saved.has(selected.id) ? "♥  Saved to collection" : "Save recipe"}
-              </button>
-            </div>
+            ))}
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+        {/* RECIPE DETAIL MODAL */}
+        {selected && modalPhase !== "closed" && (
+          <>
+            <div onClick={closeRecipe} style={{
+              position: "fixed", inset: 0, background: "rgba(26,26,24,0.4)",
+              backdropFilter: "blur(4px)", zIndex: 200,
+              animation: `${modalPhase === "leaving" ? "backdropOut" : "backdropIn"} 0.4s ${easeOutExpo} forwards`,
+            }} />
+            <div style={{
+              position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+              width: "100%", maxWidth: 480, maxHeight: "92vh", zIndex: 201,
+              background: "#FAF9F6", borderRadius: "24px 24px 0 0", overflowY: "auto",
+              animation: `${modalPhase === "leaving" ? "modalOut" : "modalIn"} 0.5s ${easeOutExpo} forwards`,
+            }}>
+              {/* Handle */}
+              <div style={{
+                width: 40, height: 4, background: "#E0DBD3", borderRadius: 100,
+                margin: "12px auto 0",
+              }} />
+              
+              {/* Hero image */}
+              <div style={{ position: "relative", height: 280, margin: "12px 16px 0", borderRadius: 20, overflow: "hidden" }}>
+                <img src={selected.img} alt={selected.title} style={{
+                  width: "100%", height: "100%", objectFit: "cover",
+                }} />
+                <div style={{
+                  position: "absolute", inset: 0,
+                  background: "linear-gradient(0deg, rgba(26,26,24,0.5) 0%, transparent 50%)",
+                }} />
+                <div style={{ position: "absolute", bottom: 20, left: 20, right: 20 }}>
+                  <div style={{
+                    fontFamily: "'Cormorant Garamond', serif", fontSize: 32, fontWeight: 300,
+                    color: "#FAF9F6", lineHeight: 1.15, letterSpacing: "-0.02em",
+                  }}>{selected.title}</div>
+                  <div style={{ color: "rgba(250,249,246,0.65)", fontSize: 14, marginTop: 4, fontWeight: 300 }}>
+                    {selected.subtitle}
+                  </div>
+                </div>
+              </div>
+
+              {/* Macros bar */}
+              <div style={{
+                display: "flex", justifyContent: "space-around", padding: "24px 24px 20px",
+                borderBottom: "1px solid #F0EDE8",
+              }}>
+                {[
+                  { label: "Calories", val: selected.cal },
+                  { label: "Carbs", val: `${selected.carbs}g` },
+                  { label: "Protein", val: `${selected.protein}g` },
+                  { label: "Fat", val: `${selected.fat}g` },
+                ].map((m) => (
+                  <div key={m.label} style={{ textAlign: "center" }}>
+                    <div style={{
+                      fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 400,
+                      color: "#1a1a18",
+                    }}>{m.val}</div>
+                    <div style={{ fontSize: 11, color: "#9B9489", fontWeight: 300, marginTop: 2, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                      {m.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Ingredients */}
+              <div style={{ padding: "24px 24px 0" }}>
+                <h3 style={{
+                  fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 400,
+                  marginBottom: 16, letterSpacing: "-0.01em",
+                }}>Ingredients</h3>
+                {selected.ingredients.map((ing, i) => (
+                  <div key={i} style={{
+                    display: "flex", alignItems: "center", gap: 14, padding: "12px 0",
+                    borderBottom: i < selected.ingredients.length - 1 ? "1px solid #F4F1EC" : "none",
+                  }}>
+                    <div style={{
+                      width: 6, height: 6, borderRadius: "50%", background: "#C4A882", flexShrink: 0,
+                    }} />
+                    <span style={{ fontSize: 14, fontWeight: 300, color: "#3D3A35" }}>{ing}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Steps */}
+              <div style={{ padding: "28px 24px 0" }}>
+                <h3 style={{
+                  fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 400,
+                  marginBottom: 16, letterSpacing: "-0.01em",
+                }}>Method</h3>
+                {selected.steps.map((step, i) => (
+                  <div key={i} style={{
+                    display: "flex", gap: 16, marginBottom: 20,
+                  }}>
+                    <div style={{
+                      width: 28, height: 28, borderRadius: "50%", border: "1.5px solid #E0DBD3",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 12, fontWeight: 400, color: "#9B9489", flexShrink: 0,
+                    }}>{i + 1}</div>
+                    <p style={{ fontSize: 14, fontWeight: 300, color: "#3D3A35", lineHeight: 1.6, paddingTop: 4 }}>
+                      {step}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Save button */}
+              <div style={{ padding: "16px 24px 40px" }}>
+                <button onClick={(e) => toggleSave(selected.id, e)} style={{
+                  width: "100%", padding: "16px 0", borderRadius: 14, fontSize: 14,
+                  fontFamily: "'Outfit', sans-serif", fontWeight: 400, cursor: "pointer",
+                  letterSpacing: "0.02em",
+                  background: saved.has(selected.id) ? "transparent" : "#1a1a18",
+                  color: saved.has(selected.id) ? "#1a1a18" : "#FAF9F6",
+                  border: saved.has(selected.id) ? "1.5px solid #E0DBD3" : "none",
+                  transition: `all 0.35s ${easeOutExpo}`,
+                }}>
+                  {saved.has(selected.id) ? "♥  Saved to collection" : "Save recipe"}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </>
   );
 }
