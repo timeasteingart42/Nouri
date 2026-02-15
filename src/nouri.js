@@ -18,18 +18,18 @@ const CATEGORIES = [
 const RECIPES = [
   { id: 1, title: "Herb-Crusted Salmon", subtitle: "with lemon dill sauce", cat: "plates", time: "25 min", cal: 380, carbs: 3, protein: 42, fat: 22, img: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800&q=80", ingredients: ["Wild salmon fillet", "Fresh dill", "Lemon zest", "Dijon mustard", "Almond flour crust", "Capers"], steps: ["Pat salmon dry, season generously", "Press almond-herb crust onto flesh side", "Sear skin-side down 4 min", "Flip, finish in 400°F oven 8 min", "Rest 3 min, serve with lemon dill sauce"] },
   { id: 2, title: "Golden Turmeric Latte", subtitle: "anti-inflammatory ritual", cat: "drinks", time: "5 min", cal: 120, carbs: 4, protein: 3, fat: 10, img: "https://images.unsplash.com/photo-1578020190125-f4f7c18bc9cb?w=800&q=80", ingredients: ["Oat milk", "Fresh turmeric", "Ceylon cinnamon", "Black pepper", "Coconut oil", "Raw honey"], steps: ["Warm milk gently — never boil", "Whisk in turmeric and spices", "Add coconut oil for richness", "Strain into your favourite mug", "Dust with cinnamon"] },
-  { id: 3, title: "Avocado Citrus Bowl", subtitle: "bright & nourishing", cat: "bowls", time: "15 min", cal: 420, carbs: 18, protein: 12, fat: 34, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80", ingredients: ["Ripe avocado", "Blood orange segments", "Toasted pepitas", "Microgreens", "Extra virgin olive oil", "Flaky sea salt"], steps: ["Halve and fan the avocado", "Segment blood oranges over the bowl", "Scatter pepitas and microgreens", "Drizzle your best olive oil", "Finish with flaky salt"] },
+  { id: 3, title: "Avocado Citrus Bowl", subtitle: "bright & nourishing", cat: "bowls", time: "15 min", cal: 420, carbs: 7, protein: 12, fat: 38, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80", ingredients: ["Ripe avocado", "Blood orange segments", "Toasted pepitas", "Microgreens", "Extra virgin olive oil", "Flaky sea salt"], steps: ["Halve and fan the avocado", "Segment blood oranges over the bowl", "Scatter pepitas and microgreens", "Drizzle your best olive oil", "Finish with flaky salt"] },
   { id: 4, title: "Warm Seed Porridge", subtitle: "cozy morning bowl", cat: "morning", time: "10 min", cal: 310, carbs: 8, protein: 14, fat: 26, img: "https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=800&q=80", ingredients: ["Hemp hearts", "Chia seeds", "Flaxmeal", "Coconut cream", "Vanilla bean", "Toasted coconut flakes"], steps: ["Combine seeds with warm coconut cream", "Stir gently over low heat 5 min", "Scrape in vanilla bean seeds", "Pour into warmed bowl", "Crown with toasted coconut"] },
   { id: 5, title: "Sesame Orange Chicken", subtitle: "weeknight favourite", cat: "plates", time: "30 min", cal: 450, carbs: 6, protein: 38, fat: 28, img: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&q=80", ingredients: ["Chicken thighs", "Fresh orange juice", "Tamari", "Sesame oil", "Ginger", "Toasted sesame seeds"], steps: ["Sear chicken thighs skin-down until golden", "Remove, build sauce in the same pan", "Reduce orange-tamari glaze by half", "Return chicken, coat in sauce", "Garnish with sesame and scallion"] },
   { id: 6, title: "Chocolate Protein Shake", subtitle: "post-workout indulgence", cat: "drinks", time: "3 min", cal: 280, carbs: 6, protein: 30, fat: 16, img: "https://images.unsplash.com/photo-1553787499-6f9133860278?w=800&q=80", ingredients: ["Cacao powder", "Collagen peptides", "Almond butter", "Frozen cauliflower", "Almond milk", "Vanilla"], steps: ["Blend all ingredients until velvety", "Add ice for thickness if desired", "Pour into chilled glass", "Top with cacao nibs"] },
   { id: 7, title: "Mediterranean Frittata", subtitle: "elegant brunch centrepiece", cat: "morning", time: "20 min", cal: 340, carbs: 5, protein: 24, fat: 26, img: "https://images.unsplash.com/photo-1510693206972-df098062cb71?w=800&q=80", ingredients: ["Pastured eggs", "Sun-dried tomatoes", "Kalamata olives", "Goat cheese", "Fresh basil", "Extra virgin olive oil"], steps: ["Whisk eggs with a splash of cream", "Sauté aromatics in olive oil", "Pour eggs, arrange toppings artfully", "Broil until just set and golden", "Slide onto board, scatter basil"] },
-  { id: 8, title: "Tuna Niçoise Bowl", subtitle: "French riviera in a bowl", cat: "bowls", time: "20 min", cal: 390, carbs: 10, protein: 36, fat: 24, img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80", ingredients: ["Seared ahi tuna", "Haricots verts", "Soft-boiled egg", "Niçoise olives", "Cherry tomatoes", "Anchovy vinaigrette"], steps: ["Blanch haricots verts until crisp-tender", "Sear tuna 90 seconds per side", "Arrange components in wide bowl", "Halve the soft-boiled egg", "Drizzle anchovy vinaigrette"] },
+  { id: 8, title: "Tuna Niçoise Bowl", subtitle: "French riviera in a bowl", cat: "bowls", time: "20 min", cal: 390, carbs: 6, protein: 36, fat: 28, img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80", ingredients: ["Seared ahi tuna", "Haricots verts", "Soft-boiled egg", "Niçoise olives", "Cherry tomatoes", "Anchovy vinaigrette"], steps: ["Blanch haricots verts until crisp-tender", "Sear tuna 90 seconds per side", "Arrange components in wide bowl", "Halve the soft-boiled egg", "Drizzle anchovy vinaigrette"] },
   { id: 9, title: "Spicy Buffalo Bites", subtitle: "game day, elevated", cat: "bites", time: "25 min", cal: 260, carbs: 4, protein: 28, fat: 14, img: "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=800&q=80", ingredients: ["Chicken breast", "Frank's hot sauce", "Grass-fed butter", "Celery", "Blue cheese crumbles", "Ranch seasoning"], steps: ["Cut chicken into bite-sized pieces", "Toss with ranch seasoning, air fry 12 min", "Melt butter into hot sauce", "Coat bites in buffalo sauce", "Serve with celery and blue cheese"] },
   { id: 10, title: "Smoked Salmon Pinwheels", subtitle: "effortless appetiser", cat: "bites", time: "10 min", cal: 180, carbs: 2, protein: 16, fat: 12, img: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80", ingredients: ["Wild smoked salmon", "Cream cheese", "Fresh dill", "Capers", "Lemon zest", "Everything bagel seasoning"], steps: ["Spread cream cheese on salmon slices", "Layer dill, capers, lemon zest", "Roll tightly, chill 15 min", "Slice into pinwheels", "Dust with everything seasoning"] },
   { id: 11, title: "Bone Broth Ramen", subtitle: "deeply restorative", cat: "warm", time: "20 min", cal: 350, carbs: 8, protein: 30, fat: 22, img: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80", ingredients: ["Bone broth", "Shirataki noodles", "Soft-boiled egg", "Nori sheets", "Scallions", "Chili oil"], steps: ["Heat bone broth with ginger and garlic", "Prepare shirataki noodles per package", "Ladle broth over noodles", "Top with halved egg and nori", "Finish with scallion and chili oil"] },
   { id: 12, title: "Dark Chocolate Mousse", subtitle: "three-ingredient magic", cat: "sweets", time: "15 min", cal: 220, carbs: 8, protein: 4, fat: 20, img: "https://images.unsplash.com/photo-1541783245831-57d6fb0926d3?w=800&q=80", ingredients: ["85% dark chocolate", "Coconut cream", "Vanilla extract", "Flaky sea salt", "Cacao nibs"], steps: ["Melt chocolate slowly over bain-marie", "Whip cold coconut cream to soft peaks", "Fold chocolate into cream gently", "Chill 2 hours minimum", "Serve with salt and cacao nibs"] },
-  { id: 13, title: "Green Goddess Bowl", subtitle: "the reset button", cat: "bowls", time: "15 min", cal: 380, carbs: 14, protein: 18, fat: 28, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80", ingredients: ["Massaged kale", "Avocado", "Cucumber", "Edamame", "Hemp hearts", "Green goddess dressing"], steps: ["Massage kale with lemon and salt", "Arrange all components in sections", "Scatter hemp hearts generously", "Drizzle green goddess dressing", "Eat slowly, feel incredible"] },
-  { id: 14, title: "Coconut Chia Pudding", subtitle: "make tonight, enjoy tomorrow", cat: "sweets", time: "5 min", cal: 260, carbs: 10, protein: 8, fat: 20, img: "https://images.unsplash.com/photo-1546548970-71785318a17b?w=800&q=80", ingredients: ["Chia seeds", "Full-fat coconut milk", "Vanilla bean paste", "Mango", "Toasted coconut", "Lime zest"], steps: ["Whisk chia into coconut milk", "Add vanilla, stir well", "Refrigerate overnight", "Top with mango and coconut", "Finish with lime zest"] },
+  { id: 13, title: "Green Goddess Bowl", subtitle: "the reset button", cat: "bowls", time: "15 min", cal: 380, carbs: 7, protein: 18, fat: 32, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80", ingredients: ["Massaged kale", "Avocado", "Cucumber", "Edamame", "Hemp hearts", "Green goddess dressing"], steps: ["Massage kale with lemon and salt", "Arrange all components in sections", "Scatter hemp hearts generously", "Drizzle green goddess dressing", "Eat slowly, feel incredible"] },
+  { id: 14, title: "Coconut Chia Pudding", subtitle: "make tonight, enjoy tomorrow", cat: "sweets", time: "5 min", cal: 260, carbs: 5, protein: 8, fat: 22, img: "https://images.unsplash.com/photo-1546548970-71785318a17b?w=800&q=80", ingredients: ["Chia seeds", "Full-fat coconut milk", "Vanilla bean paste", "Mango", "Toasted coconut", "Lime zest"], steps: ["Whisk chia into coconut milk", "Add vanilla, stir well", "Refrigerate overnight", "Top with mango and coconut", "Finish with lime zest"] },
   { id: 15, title: "Chicken Noodle Soup", subtitle: "the healer", cat: "warm", time: "35 min", cal: 320, carbs: 6, protein: 34, fat: 18, img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80", ingredients: ["Whole chicken thighs", "Hearts of palm noodles", "Celery", "Carrots", "Fresh thyme", "Bay leaves"], steps: ["Sear chicken thighs until golden", "Build broth with aromatics", "Simmer 20 min until falling apart", "Shred chicken, add noodles", "Ladle generously, breathe in the steam"] },
   { id: 16, title: "Matcha Coconut Latte", subtitle: "calm energy", cat: "drinks", time: "5 min", cal: 140, carbs: 3, protein: 2, fat: 12, img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=800&q=80", ingredients: ["Ceremonial matcha", "Coconut cream", "Oat milk", "Vanilla", "Raw honey"], steps: ["Sift matcha into warm bowl", "Whisk with small amount of hot water", "Froth coconut cream and oat milk", "Pour matcha over frothed milk", "Sweeten gently if desired"] },
 ];
@@ -133,7 +133,7 @@ export default function Nouri() {
             opacity: splashPhase >= 2 ? 1 : 0, transform: splashPhase >= 2 ? "translateY(0)" : "translateY(16px)",
             transition: `all 0.8s ${easeOutExpo} 0.1s`,
           }}>
-            Clean ingredients · whole foods · effortlessly good
+            Keto recipes · low carb · effortlessly good
           </div>
           <div style={{
             width: 48, height: 1, background: "#C4A882", marginTop: 32,
@@ -347,7 +347,7 @@ export default function Nouri() {
                 fontSize: 11, fontFamily: "'Outfit', sans-serif", letterSpacing: "0.2em",
                 textTransform: "uppercase", color: "#C4A882", fontWeight: 400, marginBottom: 8,
               }}>
-                Editor's Pick
+                Editor's Pick · Keto
               </div>
               <div style={{
                 fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300,
@@ -452,11 +452,11 @@ export default function Nouri() {
                   <div style={{ fontSize: 12, color: "#9B9489", fontWeight: 300, marginBottom: 10 }}>
                     {r.subtitle}
                   </div>
-                  <div style={{ display: "flex", gap: 6 }}>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                     <span style={{
                       padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 400,
-                      background: "#F4F1EC", color: "#6B665E",
-                    }}>{r.carbs}g carbs</span>
+                      background: "#E8F5E2", color: "#4A7A3B",
+                    }}>{r.carbs}g net carbs</span>
                     <span style={{
                       padding: "4px 10px", borderRadius: 100, fontSize: 11, fontWeight: 400,
                       background: "#F4F1EC", color: "#6B665E",
@@ -515,7 +515,7 @@ export default function Nouri() {
               }}>
                 {[
                   { label: "Calories", val: selected.cal },
-                  { label: "Carbs", val: `${selected.carbs}g` },
+                  { label: "Net Carbs", val: `${selected.carbs}g` },
                   { label: "Protein", val: `${selected.protein}g` },
                   { label: "Fat", val: `${selected.fat}g` },
                 ].map((m) => (
