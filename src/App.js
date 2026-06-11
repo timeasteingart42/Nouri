@@ -1,2 +1,2 @@
-import Nouri from './nouri';
-export default function App() { return <Nouri />; }
+import Dump from './dump';
+export default function App() { return <Dump />; }
